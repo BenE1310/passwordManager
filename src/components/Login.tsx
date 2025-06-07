@@ -28,7 +28,7 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const { login, isAuthenticated, user, isLoading } = useAuth();
+  const { login, user, isLoading } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if already authenticated
