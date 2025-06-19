@@ -1,47 +1,35 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { Box, CssBaseline, GlobalStyles, CircularProgress } from '@mui/material';
+import { Box, CssBaseline, GlobalStyles } from '@mui/material';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import SettingsPage from './components/SettingsPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { TemplateProvider } from './context/TemplateContext';
 import { PasswordProvider } from './context/PasswordContext';
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
 
-  React.useEffect(() => {
-    if (!isLoading && !user) {
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
       navigate('/');
     }
-  }, [user, isLoading, navigate]);
+  }, [isAuthenticated, isLoading, navigate]);
 
+  // Show nothing while loading
   if (isLoading) {
-    return (
-      <Box
-        sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'linear-gradient(135deg, #0a1929 0%, #1a237e 100%)',
-        }}
-      >
-        <CircularProgress sx={{ color: '#2196f3' }} />
-      </Box>
-    );
+    return null;
   }
 
-  return user ? <>{children}</> : null;
+  // If authenticated, render children
+  return isAuthenticated ? <>{children}</> : null;
 };
 
 const App: React.FC = () => {
   return (
     <AuthProvider>
       <PasswordProvider>
-        <TemplateProvider>
           <CssBaseline />
           <GlobalStyles 
             styles={{
@@ -86,7 +74,6 @@ const App: React.FC = () => {
               />
             </Routes>
           </Box>
-        </TemplateProvider>
       </PasswordProvider>
     </AuthProvider>
   );

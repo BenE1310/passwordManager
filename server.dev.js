@@ -1,13 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const crypto = require('crypto');
-const { ObjectId } = require('mongodb');
 const { getAuthDb, getPasswordsDb } = require('./mongo');
+const { ObjectId } = require('mongodb');
+const crypto = require('crypto');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
-const ENCRYPTION_KEY = process.env.PASSWORD_ENCRYPTION_KEY || '12345678901234567890123456789012';
+const PORT = 3001;
+
+const ENCRYPTION_KEY = process.env.PASSWORD_ENCRYPTION_KEY || '12345678901234567890123456789012'; // 32 chars
 const IV_LENGTH = 16;
 
 function encrypt(text) {
@@ -28,24 +29,29 @@ function decrypt(text) {
 }
 
 function safeEncrypt(text) {
-  if (typeof text !== 'string' || text.includes(':')) return text;
+  if (typeof text !== 'string' || text.includes(':')) {
+    return text; // Already encrypted
+  }
   return encrypt(text);
 }
 
 function safeDecrypt(text) {
-  if (typeof text !== 'string' || !text.includes(':')) return text;
+  if (typeof text !== 'string' || !text.includes(':')) {
+    return text; // Not encrypted
+  }
   return decrypt(text);
 }
 
-// CORS for production
-app.use(cors());
+// Enable CORS for Vite
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 
-// Serve React from /dist
-const distPath = path.join(__dirname, 'dist');
-app.use(express.static(distPath));
-
-// === Ensure default admin ===
 (async () => {
   const db = await getAuthDb();
   const existing = await db.collection('users').findOne({ username: 'admin' });
@@ -53,11 +59,11 @@ app.use(express.static(distPath));
   if (!existing) {
     await db.collection('users').insertOne({
       username: 'admin',
-      password: 'admin',
+      password: 'admin', // Default password
       role: 'administrator',
       createdAt: new Date()
     });
-    console.log('✅ Default admin user created');
+    console.log('✅ Default admin user created: admin / admin');
   } else {
     console.log('ℹ️ Admin user already exists');
   }
@@ -547,11 +553,7 @@ app.put('/api/folders/:id/move', async (req, res) => {
   }
 });
 
-// React Router fallback (important for frontend routes!)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'));
-});
 
 app.listen(PORT, () => {
-  console.log(`✅ Production server running at http://localhost:${PORT}`);
+  console.log(`✅ Dev server running at http://localhost:${PORT}`);
 });

@@ -150,7 +150,7 @@ const Login: React.FC = () => {
                 },
               }}
             >
-              Password Manager
+              KeePass Secure
             </Typography>
             <Typography 
               variant="body1" 
