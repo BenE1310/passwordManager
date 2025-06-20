@@ -45,7 +45,7 @@ const SettingsPage: React.FC = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [users, setUsers] = useState<User[]>([]);
-  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [, setIsLoadingUsers] = useState(false);
   const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
   const [newUser, setNewUser] = useState({ username: '', password: '' });
   const [isEditingUser, setIsEditingUser] = useState<User | null>(null);
