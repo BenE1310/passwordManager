@@ -44,6 +44,8 @@ import { useAuth } from '../context/AuthContext';
 import { usePasswords } from '../context/PasswordContext';
 import { useNavigate } from 'react-router-dom';
 import { FaFolderPlus } from "react-icons/fa";
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 
 interface PasswordEntry {
   id: string;
@@ -96,6 +98,16 @@ const Dashboard: React.FC = () => {
   const [isMoveFolderDialogOpen, setIsMoveFolderDialogOpen] = useState(false);
   const [folderToMove, setFolderToMove] = useState<Folder | null>(null);
   const [selectedMoveFolderIdForFolder, setSelectedMoveFolderIdForFolder] = useState<string | null>(null);
+  
+  // Mobile menu state
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const openMenu = Boolean(anchorEl);
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
   
   // --- Context Hooks ---
   const { logout, user } = useAuth();
@@ -403,33 +415,28 @@ const Dashboard: React.FC = () => {
           borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
         }}
       >
-        <Toolbar sx={{ justifyContent: 'space-between', minHeight: 80 }}>
+        <Toolbar sx={{ justifyContent: 'space-between', minHeight: { xs: 56, sm: 80 }, px: { xs: 1, sm: 3 } }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton
-              color="inherit"
-              onClick={() => setDrawerOpen(!drawerOpen)}
-              sx={{ mr: 2, display: { xs: 'block', sm: 'none' } }}
-            >
-              <MenuIcon />
-            </IconButton>
-            <SecurityIcon sx={{ fontSize: 40, mr: 2 }} />
+            <SecurityIcon sx={{ fontSize: { xs: 28, sm: 40 }, mr: 1 }} />
             <Typography variant="h4" sx={{ 
               fontWeight: 'bold', 
+              fontSize: { xs: '1.3rem', sm: '2rem' },
               background: 'linear-gradient(45deg, #fff 30%, #e3f2fd 90%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
+              lineHeight: 1.1,
             }}>
-              KeePass Secure
+              KeePass<br style={{ display: (window.innerWidth < 600) ? 'block' : 'none' }} /> Secure
             </Typography>
           </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          {/* Right-side controls: show as menu on mobile */}
+          <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 3 }}>
             <Paper
               sx={{
                 p: '2px 4px',
                 display: { xs: 'none', sm: 'flex' },
                 alignItems: 'center',
-                width: 300,
+                width: { xs: '100%', sm: 300 },
                 bgcolor: 'rgba(255, 255, 255, 0.15)',
                 borderRadius: 3,
               }}
@@ -449,7 +456,6 @@ const Dashboard: React.FC = () => {
                 }}
               />
             </Paper>
-
             <Box sx={{ 
               display: 'flex', 
               alignItems: 'center', 
@@ -505,89 +511,114 @@ const Dashboard: React.FC = () => {
               </Tooltip>
             </Box>
           </Box>
+          <Box sx={{ display: { xs: 'flex', sm: 'none' }, alignItems: 'center' }}>
+            <IconButton onClick={handleMenuClick} sx={{ color: '#fff' }}>
+              <Avatar sx={{ bgcolor: '#1565c0', color: '#fff', fontSize: '1rem', width: 32, height: 32 }}>
+                {user?.username[0].toUpperCase()}
+              </Avatar>
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={openMenu}
+              onClose={handleMenuClose}
+              PaperProps={{ sx: { bgcolor: '#1a237e', color: '#fff' } }}
+            >
+              <MenuItem onClick={() => { handleMenuClose(); navigate('/settings'); }}>
+                <SettingsIcon sx={{ mr: 1 }} /> Settings
+              </MenuItem>
+              <MenuItem onClick={() => { handleMenuClose(); handleLogoutClick(); }}>
+                <LogoutIcon sx={{ mr: 1 }} /> Logout
+              </MenuItem>
+            </Menu>
+          </Box>
         </Toolbar>
       </AppBar>
-
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          pt: '80px',
+          pt: { xs: '56px', sm: '80px' },
           background: 'linear-gradient(135deg, #0a1929 0%, #1a237e 100%)',
           minHeight: '100vh',
           display: 'flex',
           flexDirection: 'column',
         }}
       >
-        <Box sx={{ p: 3, flex: 1 }}>
-          <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
+        <Box sx={{ p: { xs: 1, sm: 3 }, flex: 1 }}>
+          <Box sx={{ maxWidth: { xs: '100%', sm: 1200 }, mx: 'auto' }}>
             <Card
               elevation={8}
               sx={{
                 bgcolor: 'rgba(255, 255, 255, 0.05)',
                 backdropFilter: 'blur(10px)',
-                borderRadius: 4,
+                borderRadius: { xs: 2, sm: 4 },
                 border: '1px solid rgba(255, 255, 255, 0.12)',
+                width: '100%',
+                boxShadow: { xs: '0 2px 8px rgba(33,203,243,0.08)', sm: '0 3px 5px 2px rgba(33, 203, 243, .3)' },
               }}
             >
-              <CardContent sx={{ p: 4 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+              <CardContent sx={{ p: { xs: 1, sm: 4 } }}>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, mb: 4, gap: { xs: 2, sm: 0 } }}>
                   <Typography variant="h5" sx={{ 
                     display: 'flex', 
                     alignItems: 'center', 
                     gap: 2,
                     color: '#fff',
                     fontWeight: 'bold',
+                    fontSize: { xs: '1.1rem', sm: '1.5rem' },
                   }}>
-                    <FolderIcon sx={{ color: '#2196f3', fontSize: 32 }} />
+                    <FolderIcon sx={{ color: '#2196f3', fontSize: { xs: 24, sm: 32 } }} />
                     {currentFolderId === null ? 'Root' : currentFolderPath[currentFolderPath.length - 1]?.name || ''}
                   </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  {/* Responsive Add Password button */}
+                  <Box sx={{ width: { xs: '100%', sm: 'auto' }, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1, mt: { xs: 1, sm: 0 } }}>
                     <Button
                       variant="contained"
                       startIcon={<AddIcon />}
                       onClick={() => setIsAddDialogOpen(true)}
                       sx={{
                         background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
-                        boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
+                        boxShadow: { xs: '0 2px 8px rgba(33,203,243,0.18)', sm: '0 3px 5px 2px rgba(33, 203, 243, .3)' },
                         borderRadius: 3,
-                        px: 4,
-                        py: 1.5,
-                        fontSize: '1rem',
+                        px: { xs: 0, sm: 4 },
+                        py: { xs: 1, sm: 1.5 },
+                        fontSize: { xs: '1rem', sm: '1rem' },
                         fontWeight: 500,
                         textTransform: 'none',
                         color: '#fff',
+                        width: { xs: '100%', sm: 'auto' },
                         '&:hover': {
                           background: 'linear-gradient(45deg, #1976D2 30%, #1CB5E0 90%)',
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 5px 8px 2px rgba(33, 203, 243, .4)',
+                          transform: { xs: 'none', sm: 'translateY(-2px)' },
+                          boxShadow: { xs: '0 4px 12px rgba(33,203,243,0.22)', sm: '0 5px 8px 2px rgba(33, 203, 243, .4)' },
                         },
                         transition: 'all 0.3s ease',
                       }}
                     >
                       Add Password
                     </Button>
-
                     <Button
                       variant="contained"
                       startIcon={<FaFolderPlus />}
                       onClick={() => setIsAddFolderDialogOpen(true)}
                       sx={{
-                        background: 'linear-gradient(45deg, #FFC107 30%, #FFEB3B 90%)', // Yellowish gradient
-                        boxShadow: '0 3px 5px 2px rgba(255, 193, 7, .3)',
+                        background: 'linear-gradient(45deg, #FFC107 30%, #FFEB3B 90%)',
+                        boxShadow: { xs: '0 2px 8px rgba(255,193,7,0.18)', sm: '0 3px 5px 2px rgba(255, 193, 7, .3)' },
                         borderRadius: 3,
-                        px: 4,
-                        py: 1.5,
-                        fontSize: '1rem',
+                        px: { xs: 0, sm: 4 },
+                        py: { xs: 1, sm: 1.5 },
+                        fontSize: { xs: '1rem', sm: '1rem' },
                         fontWeight: 500,
                         textTransform: 'none',
-                        color: '#000', // Darker text for contrast on yellow
+                        color: '#222',
+                        width: { xs: '100%', sm: 'auto' },
                         '&:hover': {
                           background: 'linear-gradient(45deg, #FFA000 30%, #FFD700 90%)',
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 5px 8px 2px rgba(255, 160, 0, .4)',
+                          transform: { xs: 'none', sm: 'translateY(-2px)' },
+                          boxShadow: { xs: '0 4px 12px rgba(255,193,7,0.22)', sm: '0 5px 8px 2px rgba(255, 193, 7, .4)' },
                         },
                         transition: 'all 0.3s ease',
+                        mt: { xs: 1, sm: 0 },
                       }}
                     >
                       Add Folder
@@ -618,18 +649,28 @@ const Dashboard: React.FC = () => {
                 {/* Folders List */}
                 <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column' }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h6" sx={{ color: '#fff' }}>Folders</Typography>
+                    <Typography variant="h6" sx={{ color: '#fff', fontSize: { xs: '1rem', sm: '1.2rem' } }}>Folders</Typography>
                   </Box>
-                  <List sx={{ display: 'flex', flexWrap: 'wrap', gap: 2.5, width: '100%' }}>
+                  <List sx={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    flexDirection: 'row',
+                    gap: 2.5,
+                    width: '100%',
+                    justifyContent: { xs: 'center', sm: 'flex-start' },
+                  }}>
                     {getSubfolders(currentFolderId).length > 0 ? (
                       getSubfolders(currentFolderId).map((folder, index) => (
                         <Box
                           key={folder.id}
                           sx={{
-                            width: 175,
-                            height: 150,
+                            width: { xs: '100%', sm: 175 },
+                            minWidth: { xs: '90vw', sm: 175 },
+                            maxWidth: { xs: '100%', sm: 175 },
+                            height: { xs: 90, sm: 150 },
                             position: 'relative',
                             cursor: 'pointer',
+                            mb: { xs: 2, sm: 0 },
                             animation: `slideInUp 0.6s ease-out ${index * 0.1}s both`,
                             '@keyframes slideInUp': {
                               '0%': {
@@ -901,8 +942,8 @@ const Dashboard: React.FC = () => {
                 </Box>
 
                 {/* Passwords List */}
-                <Typography variant="h6" sx={{ color: '#fff', mb: 2 }}>Passwords</Typography>
-                <List>
+                <Typography variant="h6" sx={{ color: '#fff', mb: 2, fontSize: { xs: '1rem', sm: '1.2rem' } }}>Passwords</Typography>
+                <List sx={{ width: '100%' }}>
                   {filteredPasswords().length > 0 ? (
                     filteredPasswords().map((entry) => (
                       <ListItem
@@ -912,10 +953,15 @@ const Dashboard: React.FC = () => {
                           bgcolor: 'rgba(255, 255, 255, 0.03)',
                           borderRadius: 2,
                           transition: 'all 0.3s ease',
+                          flexDirection: { xs: 'column', sm: 'row' },
+                          alignItems: { xs: 'flex-start', sm: 'center' },
+                          width: '100%',
+                          px: { xs: 1, sm: 2 },
+                          py: { xs: 1, sm: 2 },
                           '&:hover': {
                             bgcolor: 'rgba(255, 255, 255, 0.08)',
                             '& .MuiListItemText-primary': {
-                              fontSize: '1.25rem',
+                              fontSize: { xs: '1.1rem', sm: '1.25rem' },
                               transition: 'font-size 0.3s ease',
                             },
                           },
@@ -923,10 +969,11 @@ const Dashboard: React.FC = () => {
                       >
                         <ListItemText
                           primary={
-                            <Typography variant="h6" sx={{ 
-                              fontSize: '1.1rem', 
+                            <Typography variant="h6" sx={{
+                              fontSize: { xs: '1rem', sm: '1.1rem' },
                               fontWeight: 'medium',
                               color: '#fff',
+                              wordBreak: 'break-word',
                               transition: 'font-size 0.3s ease',
                             }}>
                               {entry.title}
@@ -934,10 +981,10 @@ const Dashboard: React.FC = () => {
                           }
                           secondary={
                             <Box sx={{ mt: 1 }}>
-                              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', wordBreak: 'break-all', fontSize: { xs: '0.95rem', sm: '1rem' } }}>
                                 Username: {entry.username}
                               </Typography>
-                              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', wordBreak: 'break-all', fontSize: { xs: '0.95rem', sm: '1rem' } }}>
                                 Password: {showPassword[entry.id] ? entry.password : '••••••••'}
                               </Typography>
                               {entry.description && (
@@ -946,7 +993,9 @@ const Dashboard: React.FC = () => {
                                   sx={{ 
                                     color: 'rgba(255, 255, 255, 0.7)',
                                     mt: 1,
-                                    fontStyle: 'italic'
+                                    fontStyle: 'italic',
+                                    wordBreak: 'break-word',
+                                    fontSize: { xs: '0.95rem', sm: '1rem' },
                                   }}
                                 >
                                   Note: {entry.description}
@@ -1053,7 +1102,9 @@ const Dashboard: React.FC = () => {
             backdropFilter: 'blur(10px)',
             border: '1px solid rgba(255, 255, 255, 0.12)',
             borderRadius: 2,
-            minWidth: '400px',
+            minWidth: { xs: 'unset', sm: '400px' },
+            width: { xs: '95vw', sm: 'auto' },
+            maxWidth: { xs: '98vw', sm: '600px' },
           }
         }}
       >

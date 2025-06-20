@@ -80,4 +80,38 @@ body {
 
 .fade-in {
   animation: fadeIn 0.3s ease-in-out;
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 0 !important;
+    min-width: 0 !important;
+    width: 100vw !important;
+    font-size: 15px;
+    place-items: initial;
+  }
+  #root {
+    width: 100vw !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+  }
+  .MuiCard-root, .MuiDialog-paper {
+    width: 98vw !important;
+    min-width: unset !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    border-radius: 12px !important;
+  }
+  .MuiToolbar-root {
+    min-height: 56px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+  .MuiTypography-h4, .MuiTypography-h5, .MuiTypography-h6 {
+    font-size: 1.1rem !important;
+  }
+  .MuiListItem-root {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
 } 
